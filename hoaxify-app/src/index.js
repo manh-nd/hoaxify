@@ -3,10 +3,16 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import UserSignupPage from "./pages/UserSignupPage";
+import {signup} from './api/apiCalls';
+
+const actions = {
+  postSignup: signup
+}
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <UserSignupPage actions={actions}/>
   </React.StrictMode>,
   document.getElementById('root')
 );
