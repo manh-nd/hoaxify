@@ -1,6 +1,6 @@
 package com.iammanh.hoaxifyservice.user;
 
-import com.iammanh.hoaxifyservice.shared.ApiError;
+import com.iammanh.hoaxifyservice.error.ApiError;
 import com.iammanh.hoaxifyservice.shared.GenericApiResponse;
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.iammanh.hoaxifyservice.utils.TestUtil.createValidUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -45,14 +46,6 @@ public class UserControllerTest {
     @After
     public void tearDown() throws Exception {
         userRepository.deleteAll();
-    }
-
-    private User createValidUser() {
-        User user = new User();
-        user.setUsername("test-user");
-        user.setDisplayName("test-name");
-        user.setPassword("P4ssword");
-        return user;
     }
 
     @Test
