@@ -8,3 +8,12 @@ export const signup = (user) => {
     }
   });
 }
+
+export const login = (user) => {
+  return axios.post(endpoint('/api/v1/login'), {}, {
+    auth: user,
+    headers: {
+      'Accept-Language': 'en'
+    }
+  });
+}

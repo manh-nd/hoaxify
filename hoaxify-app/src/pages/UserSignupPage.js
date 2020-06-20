@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Input from '../components/Input';
+import ButtonWithProgress from "../components/ButtonWithProgress";
 
 export class UserSignupPage extends Component {
 
@@ -64,8 +65,7 @@ export class UserSignupPage extends Component {
     }
     this.setState({pendingApiCall: true});
     this.props.actions.postSignup(requestBody)
-      .then(response => {
-      })
+      .then(response => {})
       .catch(error => {
         let errors = {...this.state.errors};
         if (error.response && error.response.data.validationErrors) {
@@ -80,7 +80,7 @@ export class UserSignupPage extends Component {
     const disabledButton = this.state.pendingApiCall || Object.keys(this.state.errors).length > 0;
     const hasErrorPasswordRepeat = this.state.passwordRepeatConfirmed === undefined ? undefined : !this.state.passwordRepeatConfirmed;
     return (
-      <div className="container">
+      <form className="container">
         <h1 className="text-center mt-2">Sign Up</h1>
         <div className="mb-2">
           <Input label="Display name"
@@ -121,26 +121,21 @@ export class UserSignupPage extends Component {
           />
         </div>
         <div className="text-center">
-          <button className="btn btn-primary"
-                  disabled={disabledButton}
-                  onClick={this.onClickSignup}>
-            {this.state.pendingApiCall && (
-              <div className="spinner-border spinner-border-sm text-light mr-sm-1">
-                <span className="sr-only">Loading...</span>
-              </div>
-            )}
-            Sign Up
-          </button>
+          <ButtonWithProgress
+            disabled={disabledButton}
+            onClick={this.onClickSignup}
+            pendingApiCall={this.state.pendingApiCall}
+            text="Sign Up"
+          />
         </div>
-      </div>
+      </form>
     );
   }
 }
 
 UserSignupPage.defaultProps = {
   actions: {
-    postSignup: (user) => new Promise(resolve => {
-    })
+    postSignup: () => new Promise(resolve => resolve({}))
   }
 }
 
