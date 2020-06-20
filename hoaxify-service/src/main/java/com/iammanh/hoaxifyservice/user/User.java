@@ -32,6 +32,9 @@ public class User implements UserDetails {
     @Size(min = 4, max = 255)
     private String displayName;
 
+    @JsonView(View.Base.class)
+    private String image;
+
     @NotNull
     @Size(min = 8, max = 255)
     @Pattern(regexp = "^(?=.*[A-Z]+)(?=.*[a-z]+)(?=.*[0-9]+).*$", message = "{hoaxify.validation.constraints.password.Pattern.message}")

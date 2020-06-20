@@ -28,7 +28,7 @@ public class UserController {
     public ResponseEntity<GenericApiResponse> createUser(@Valid @RequestBody User user) {
         userService.save(user);
         return ResponseEntity
-                .created(URI.create("/api/v1/users/1"))
+                .created(URI.create("/api/v1/users/" + user.getId()))
                 .body(new GenericApiResponse("User saved"));
     }
 

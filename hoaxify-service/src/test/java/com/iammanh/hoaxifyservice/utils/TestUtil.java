@@ -5,6 +5,7 @@ import com.iammanh.hoaxifyservice.user.User;
 public class TestUtil {
     public static User createValidUser() {
         User user = new User();
+        user.setImage("profile.png");
         user.setUsername("test-user");
         user.setDisplayName("test-name");
         user.setPassword("P4ssword");
