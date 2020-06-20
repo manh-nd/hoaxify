@@ -35,20 +35,27 @@ export class LoginPage extends Component {
     this.setState({pendingApiCall: true});
     this.props.actions.postLogin(credentials)
       .then(response => {
+        this.setState({
+          pendingApiCall: false
+        }, () => {
+          this.props.history.push('/');
+        })
       })
       .catch(error => {
         if (error.response) {
-          this.setState({apiError: error.response.data.message})
+          this.setState({
+            pendingApiCall: false,
+            apiError: error.response.data.message
+          });
         }
-      })
-      .finally(() => this.setState({pendingApiCall: false}));
+      });
   }
 
   render() {
     const disabled = !this.state.username || !this.state.password || this.state.pendingApiCall;
 
     return (
-      <div className="container">
+      <form className="container">
         <h1 className="text-center">Login</h1>
         <div className="col-12 mb-2">
           <Input label="Username"
@@ -82,7 +89,7 @@ export class LoginPage extends Component {
             pendingApiCall={this.state.pendingApiCall}
           />
         </div>
-      </div>
+      </form>
     )
   }
 }

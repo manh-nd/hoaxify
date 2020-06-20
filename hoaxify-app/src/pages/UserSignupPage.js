@@ -65,15 +65,20 @@ export class UserSignupPage extends Component {
     }
     this.setState({pendingApiCall: true});
     this.props.actions.postSignup(requestBody)
-      .then(response => {})
+      .then(response => {
+        this.setState({
+          pendingApiCall: false
+        }, () => {
+          this.props.history.push('/');
+        })
+      })
       .catch(error => {
         let errors = {...this.state.errors};
         if (error.response && error.response.data.validationErrors) {
           errors = {...error.response.data.validationErrors};
-          this.setState({errors});
         }
-      })
-      .finally(() => this.setState({pendingApiCall: false}));
+        this.setState({pendingApiCall: false, errors});
+      });
   }
 
   render() {
@@ -82,7 +87,7 @@ export class UserSignupPage extends Component {
     return (
       <form className="container">
         <h1 className="text-center mt-2">Sign Up</h1>
-        <div className="mb-2">
+        <div className="mb-2 col-12">
           <Input label="Display name"
                  placeholder="Your display name"
                  value={this.state.displayName}
@@ -91,7 +96,7 @@ export class UserSignupPage extends Component {
                  error={this.state.errors.displayName}
           />
         </div>
-        <div className="mb-2">
+        <div className="mb-2 col-12">
           <Input label="Username"
                  placeholder="Your username"
                  value={this.state.username}
@@ -100,7 +105,7 @@ export class UserSignupPage extends Component {
                  error={this.state.errors.username}
           />
         </div>
-        <div className="mb-2">
+        <div className="mb-2 col-12">
           <Input label="Password"
                  type="password"
                  placeholder="Your password"
@@ -110,7 +115,7 @@ export class UserSignupPage extends Component {
                  error={this.state.errors.password}
           />
         </div>
-        <div className="mb-2">
+        <div className="mb-2 col-12">
           <Input label="Password repeat"
                  type="password"
                  placeholder="Repeat your password"

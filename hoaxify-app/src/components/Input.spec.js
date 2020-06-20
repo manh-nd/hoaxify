@@ -1,7 +1,6 @@
 import React from 'react';
 import {fireEvent, render} from '@testing-library/react';
 import Input from './Input';
-import {waitForDomChange, waitForElement} from "@testing-library/dom";
 
 describe('Layout', () => {
 

@@ -1,21 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import {BrowserRouter} from "react-router-dom";
 import * as serviceWorker from './serviceWorker';
-import UserSignupPage from "./pages/UserSignupPage";
-import LoginPage from "./pages/LoginPage";
-import {signup, login} from './api/apiCalls';
+import App from "./containers/App";
+import './index.css';
 
-const actions = {
-  postSignup: signup,
-  postLogin: login
-}
 
 ReactDOM.render(
   <React.StrictMode>
-    {/*<UserSignupPage actions={actions}/>*/}
-    <LoginPage actions={actions}/>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')
 );
