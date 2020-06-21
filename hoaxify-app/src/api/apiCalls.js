@@ -17,3 +17,13 @@ export const login = (user) => {
     }
   });
 }
+
+export const setAuthorizationHeader = ({username, password, isLoggedIn}) => {
+  if (isLoggedIn) {
+    axios.defaults.headers.common['Authorization'] = `Basic ${
+      btoa(username + ':' + password)
+    }`;
+  } else {
+    delete axios.defaults.headers.common['Authorization'];
+  }
+}
