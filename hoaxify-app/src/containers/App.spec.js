@@ -6,6 +6,15 @@ import {Provider} from "react-redux";
 import axios from 'axios';
 import {waitForElement} from "@testing-library/dom";
 import configureStore from "../redux/configureStore";
+import * as apiCalls from '../api/apiCalls';
+
+apiCalls.listUsers = jest.fn().mockResolvedValue({
+  data: {
+    content: [],
+    number: 0,
+    size: 3
+  }
+})
 
 const changeEvent = (value) => ({
   target: {value}

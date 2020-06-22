@@ -4,7 +4,6 @@ import * as apiCalls from "./apiCalls";
 describe('apiCalls', () => {
 
   describe('signup', () => {
-
     it('calls /api/v1/users', () => {
       const mockSignup = jest.fn();
       axios.post = mockSignup;
@@ -12,13 +11,45 @@ describe('apiCalls', () => {
       const path = mockSignup.mock.calls[0][0];
       expect(path).toBe('/api/v1/users');
     });
+  });
 
+  describe('login', () => {
     it('calls /api/v1/login', () => {
       const mockLogin = jest.fn();
       axios.post = mockLogin;
       apiCalls.login({username: 'test-user', password: 'P4ssword'});
       const path = mockLogin.mock.calls[0][0];
       expect(path).toBe('/api/v1/login');
+    });
+  });
+
+  describe('listUser', () => {
+    it('calls /api/v1/users?page=0&size=3 when no param no param provided for listUser', () => {
+      const mockListUsers = jest.fn();
+      axios.get = mockListUsers;
+      apiCalls.listUsers();
+      expect(mockListUsers).toHaveBeenCalledWith('/api/v1/users?page=0&size=3');
+    });
+
+    it('calls /api/v1/users?page=5&size=10 when corresponding params provided for listUser', () => {
+      const mockListUsers = jest.fn();
+      axios.get = mockListUsers;
+      apiCalls.listUsers({page: 5, size: 10});
+      expect(mockListUsers).toHaveBeenCalledWith('/api/v1/users?page=5&size=10');
+    });
+
+    it('calls /api/v1/users?page=5 when only page param provided for listUser', () => {
+      const mockListUsers = jest.fn();
+      axios.get = mockListUsers;
+      apiCalls.listUsers({page: 5});
+      expect(mockListUsers).toHaveBeenCalledWith('/api/v1/users?page=5&size=3');
+    });
+
+    it('calls /api/v1/users?size=5 when only size param provided for listUser', () => {
+      const mockListUsers = jest.fn();
+      axios.get = mockListUsers;
+      apiCalls.listUsers({size: 5});
+      expect(mockListUsers).toHaveBeenCalledWith('/api/v1/users?page=0&size=5');
     });
 
   });
