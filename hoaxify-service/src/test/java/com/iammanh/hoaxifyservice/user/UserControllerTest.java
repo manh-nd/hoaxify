@@ -1,6 +1,7 @@
 package com.iammanh.hoaxifyservice.user;
 
 import com.iammanh.hoaxifyservice.error.ApiError;
+import com.iammanh.hoaxifyservice.model.TestPage;
 import com.iammanh.hoaxifyservice.shared.GenericApiResponse;
 import org.junit.After;
 import org.junit.Before;
@@ -9,8 +10,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -46,6 +50,7 @@ public class UserControllerTest {
     @After
     public void tearDown() throws Exception {
         userRepository.deleteAll();
+        testRestTemplate.getRestTemplate().getInterceptors().clear();
     }
 
     @Test
@@ -264,8 +269,96 @@ public class UserControllerTest {
         assertThat(validationErrors.get("username")).isEqualTo("This username is in use");
     }
 
+    @Test
+    public void getUsers_whenThereAreNoUsersInDB_receiveOK() {
+        ResponseEntity<Object> response = testRestTemplate.getForEntity(API_V1_USERS, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
     private <T> ResponseEntity<T> postSignup(User user, Class<T> clazz) {
         return testRestTemplate.postForEntity(API_V1_USERS, user, clazz);
     }
 
+    @Test
+    public void getUsers_whenThereAreNoUsersInDB_receivePageWithZeroItems() {
+        ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {
+        });
+        assertThat(response.getBody().getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
+    public void getUsers_whenThereAreAUsersInDB_receiveUserWithoutPassword() {
+        userService.save(createValidUser());
+        ResponseEntity<TestPage<Map<String, Object>>> response = getUsers(new ParameterizedTypeReference<TestPage<Map<String, Object>>>() {
+        });
+        Map<String, Object> userItem = response.getBody().getContent().get(0);
+        assertThat(userItem.containsKey("password")).isFalse();
+    }
+
+    @Test
+    public void getUsers_whenPageIsRequestedFor3ItemsPerPageWhereDatabaseHas20Users_receive3Users() {
+        IntStream.rangeClosed(1, 20)
+                .mapToObj(item -> createValidUser("test-user" + item))
+                .forEach(userService::save);
+
+        String uri = API_V1_USERS + "?page=0&size=3";
+        ResponseEntity<TestPage<Object>> response = getUsers(uri, new ParameterizedTypeReference<TestPage<Object>>() {
+        });
+        assertThat(response.getBody().getSize()).isEqualTo(3);
+    }
+
+    @Test
+    public void getUsers_whenPageSizeIsNotProvided_receivePageSizeAs10() {
+        ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {
+        });
+        assertThat(response.getBody().getSize()).isEqualTo(10);
+    }
+
+    @Test
+    public void getUsers_whenPageSizeGreaterThan100_receivePageSizeAs100() {
+        String uri = API_V1_USERS + "?page=0&size=500";
+        ResponseEntity<TestPage<Object>> response = getUsers(uri, new ParameterizedTypeReference<TestPage<Object>>() {
+        });
+        assertThat(response.getBody().getSize()).isEqualTo(100);
+    }
+
+    @Test
+    public void getUsers_whenPageSizeIsNegative_receivePageSizeAs10() {
+        String uri = API_V1_USERS + "?page=0&size=-1";
+        ResponseEntity<TestPage<Object>> response = getUsers(uri, new ParameterizedTypeReference<TestPage<Object>>() {
+        });
+        assertThat(response.getBody().getSize()).isEqualTo(10);
+    }
+
+    @Test
+    public void getUsers_whenPageIsNegative_receiveFirstPage() {
+        String uri = API_V1_USERS + "?page=-1";
+        ResponseEntity<TestPage<Object>> response = getUsers(uri, new ParameterizedTypeReference<TestPage<Object>>() {
+        });
+        assertThat(response.getBody().getNumber()).isEqualTo(0);
+    }
+
+    @Test
+    public void getUsers_whenUserIsLoggedIn_receivePageWithoutLoggedInUser() {
+        userService.save(createValidUser("user1"));
+        userService.save(createValidUser("user2"));
+        userService.save(createValidUser("user3"));
+        authenticate("user1");
+        ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {
+        });
+        assertThat(response.getBody().getTotalElements()).isEqualTo(2);
+    }
+
+    private <T> ResponseEntity<T> getUsers(ParameterizedTypeReference<T> responseType) {
+        return testRestTemplate.exchange(API_V1_USERS, HttpMethod.GET, null, responseType);
+    }
+
+    private <T> ResponseEntity<T> getUsers(String path, ParameterizedTypeReference<T> responseType) {
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    private void authenticate(String username) {
+        testRestTemplate.getRestTemplate().getInterceptors()
+                .add(new BasicAuthenticationInterceptor(username, "P4ssword"));
+    }
 }

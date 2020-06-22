@@ -18,21 +18,17 @@ import java.util.Collection;
 public class User implements UserDetails {
     @Id
     @GeneratedValue
-    @JsonView(View.Base.class)
     private long id;
 
-    @JsonView(View.Base.class)
     @NotNull(message = "{hoaxify.validation.constraints.username.NotNull.message}")
     @Size(min = 4, max = 255)
     @UniqueUsername
     private String username;
 
-    @JsonView(View.Base.class)
     @NotNull
     @Size(min = 4, max = 255)
     private String displayName;
 
-    @JsonView(View.Base.class)
     private String image;
 
     @NotNull

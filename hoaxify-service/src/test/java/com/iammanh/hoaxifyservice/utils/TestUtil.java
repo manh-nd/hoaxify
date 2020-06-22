@@ -11,4 +11,13 @@ public class TestUtil {
         user.setPassword("P4ssword");
         return user;
     }
+
+    public static User createValidUser(String username) {
+        User user = new User();
+        user.setImage("profile.png");
+        user.setUsername(username);
+        user.setDisplayName("test-name");
+        user.setPassword("P4ssword");
+        return user;
+    }
 }
