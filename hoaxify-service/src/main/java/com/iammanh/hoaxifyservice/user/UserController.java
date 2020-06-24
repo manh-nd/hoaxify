@@ -42,6 +42,12 @@ public class UserController {
         return ResponseEntity.ok(userVMPage);
     }
 
+    @GetMapping("users/{username}")
+    public ResponseEntity<UserVM> getUsers(@PathVariable String username) {
+        User user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(new UserVM(user));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e, HttpServletRequest request) {

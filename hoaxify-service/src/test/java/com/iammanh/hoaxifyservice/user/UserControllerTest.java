@@ -5,8 +5,10 @@ import com.iammanh.hoaxifyservice.model.TestPage;
 import com.iammanh.hoaxifyservice.shared.GenericApiResponse;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -30,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserControllerTest {
 
     private final String API_V1_USERS = "/api/v1/users";
@@ -349,12 +352,46 @@ public class UserControllerTest {
         assertThat(response.getBody().getTotalElements()).isEqualTo(2);
     }
 
+    @Test
+    public void getUserByUsername_whenUserExist_receiveOk() {
+        String username = "test-user";
+        userService.save(createValidUser(username));
+        ResponseEntity<Object> response = getUser(username, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void getUserByUsername_whenUserExist_receiveUserWithoutPassword() {
+        String username = "test-user";
+        userService.save(createValidUser(username));
+        ResponseEntity<String> response = getUser(username, String.class);
+        assertThat(response.getBody().contains("password")).isFalse();
+    }
+
+    @Test
+    public void getUserByUsername_whenUserDoesNotExist_receiveNotFound() {
+        String username = "unknown-user";
+        ResponseEntity<Object> response = getUser(username, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void getUserByUsername_whenUserDoesNotExist_receiveApiError() {
+        String username = "unknown-user";
+        ResponseEntity<String> response = getUser(username, String.class);
+        assertThat(response.getBody().contains("unknown-user")).isTrue();
+    }
+
     private <T> ResponseEntity<T> getUsers(ParameterizedTypeReference<T> responseType) {
         return testRestTemplate.exchange(API_V1_USERS, HttpMethod.GET, null, responseType);
     }
 
     private <T> ResponseEntity<T> getUsers(String path, ParameterizedTypeReference<T> responseType) {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    private <T> ResponseEntity<T> getUser(String username, Class<T> responseType) {
+        return testRestTemplate.getForEntity(API_V1_USERS + "/" + username, responseType);
     }
 
     private void authenticate(String username) {
