@@ -62,4 +62,14 @@ describe('apiCalls', () => {
     });
   });
 
+  describe('updateUser', () => {
+    it('calls /api/v1/users/5 when 5 is provided for updateUser', () => {
+      const mockUpdateUser = jest.fn();
+      axios.put = mockUpdateUser;
+      apiCalls.updateUser(5);
+      const path = mockUpdateUser.mock.calls[0][0];
+      expect(path).toBe('/api/v1/users/5');
+    });
+  });
+
 })

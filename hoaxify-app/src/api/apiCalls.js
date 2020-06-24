@@ -37,3 +37,11 @@ export function getUser(username) {
   const path = `/api/v1/users/${username}`;
   return axios.get(endpoint(path));
 }
+
+export function updateUser(userId, body){
+  return axios.put(endpoint(`/api/v1/users/${userId}`), body, {
+    headers: {
+      'Accept-Language': 'en'
+    }
+  });
+}
