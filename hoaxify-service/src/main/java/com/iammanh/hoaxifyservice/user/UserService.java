@@ -1,10 +1,10 @@
 package com.iammanh.hoaxifyservice.user;
 
 import com.iammanh.hoaxifyservice.error.NotFoundException;
+import com.iammanh.hoaxifyservice.user.vm.UserUpdateVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +30,12 @@ public class UserService {
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException(username + " not found"));
+    }
+
+    public User update(Long id, UserUpdateVM userUpdateVM) {
+        User user = userRepository.getOne(id);
+        user.setDisplayName(userUpdateVM.getDisplayName());
+        userRepository.save(user);
+        return user;
     }
 }
