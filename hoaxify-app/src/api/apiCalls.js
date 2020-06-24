@@ -32,3 +32,8 @@ export function listUsers(param = {page: 0, size: 3}) {
   const path = `/api/v1/users?page=${param.page || 0}&size=${param.size || 3}`;
   return axios.get(endpoint(path));
 }
+
+export function getUser(username) {
+  const path = `/api/v1/users/${username}`;
+  return axios.get(endpoint(path));
+}

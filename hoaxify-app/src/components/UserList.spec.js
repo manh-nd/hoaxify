@@ -172,7 +172,7 @@ describe('UserList', () => {
       apiCalls.listUsers = jest.fn()
         .mockResolvedValue(mockSuccessGetSinglePage);
       const {queryByText, container} = setup();
-      const user = await waitForElement(() => queryByText('display1@user1'));
+      await waitForElement(() => queryByText('display1@user1'));
       const firstAnchor = container.querySelectorAll('a')[0];
       expect(firstAnchor.getAttribute('href')).toBe('/user1');
     });
