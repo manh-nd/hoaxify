@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:./hoaxify-prod
+    url: jdbc:h2:/app/db
   h2:
     console:
       enabled: false
@@ -8,4 +8,4 @@ spring:
     hibernate:
       ddl-auto: update
 hoaxify:
-  upload-path: uploads-prod
+  upload-path: /app/static
