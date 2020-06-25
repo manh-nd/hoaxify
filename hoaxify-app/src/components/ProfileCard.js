@@ -13,6 +13,7 @@ const ProfileCard = (props) => {
           alt="Profile"
           width="200"
           height="200"
+          src={props.loadedImage}
           className="rounded-circle shadow"
         />
       </div>
@@ -27,6 +28,7 @@ const ProfileCard = (props) => {
               value={displayName}
               onChange={props.onChangeDisplayName}
             />
+            <input type="file" className="mt-2" onChange={props.onFileSelect}/>
           </div>
         )}
         {props.isEditable && !props.inEditMode && (

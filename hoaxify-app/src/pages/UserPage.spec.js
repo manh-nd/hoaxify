@@ -12,7 +12,7 @@ const mockGetUserSuccess = {
     id: 1,
     username: 'user1',
     displayName: 'display1',
-    image: 'profile.png'
+    image: 'profile1.png'
   }
 }
 
@@ -29,7 +29,7 @@ const mockSuccessUpdateUser = {
     id: 1,
     username: 'user1',
     displayName: 'display-1-update',
-    image: 'profile.png'
+    image: 'profile1-update.png'
   }
 }
 
@@ -80,18 +80,21 @@ describe('UserPage', () => {
       const userPageDiv = queryByTestId('userpage');
       expect(userPageDiv).toBeInTheDocument();
     });
+
     it('displays the displayName@username when user data is loaded', async () => {
       apiCalls.getUser = jest.fn().mockResolvedValue(mockGetUserSuccess);
       const {queryByText} = setup({match});
       const text = await waitForElement(() => queryByText('display1@user1'));
       expect(text).toBeInTheDocument();
     });
+
     it('displays not found alert when user not found', async () => {
       apiCalls.getUser = jest.fn().mockRejectedValue(mockGetUserFail);
       const {queryByText} = setup({match});
       const alert = await waitForElement(() => queryByText('User not found'));
       expect(alert).toBeInTheDocument();
     });
+
     it('displays spinner while loading user data', () => {
       apiCalls.getUser = jest.fn().mockImplementation(() => new Promise(resolve =>
         setTimeout(() => resolve(mockGetUserSuccess), 200)
@@ -100,6 +103,7 @@ describe('UserPage', () => {
       const spinner = queryByText('Loading...');
       expect(spinner).toBeInTheDocument();
     });
+
     it('displays edit button when loggedInUser matches to user in url', async () => {
       setUserOneLoggedInStorage();
       apiCalls.getUser = jest.fn().mockResolvedValue(mockGetUserSuccess);
@@ -116,6 +120,7 @@ describe('UserPage', () => {
       setup({match});
       expect(apiCalls.getUser).toHaveBeenCalledTimes(1);
     });
+
     it('calls getUser for user when it is rendered with user1 in match', () => {
       apiCalls.getUser = jest.fn().mockResolvedValue(mockGetUserSuccess);
       setup({match});
@@ -300,6 +305,85 @@ describe('UserPage', () => {
       const cancelButton = queryByText('Cancel');
 
       expect(cancelButton).not.toBeDisabled();
+    });
+
+    it('displays the selected image in edit mode', async () => {
+      const {container} = await setupForEdit();
+
+      const uploadInput = container.querySelector('input[type="file"]');
+      const file = new File(['dummy content'], 'example.png', {type: 'image/png'});
+      fireEvent.change(uploadInput, {target: {files: [file]}});
+
+      await waitForDomChange();
+
+      const image = container.querySelector('img');
+      expect(image.src).toContain('data:image/png;base64');
+    });
+
+    it('returns back to original image even the new image is added to upload box but cancelled', async () => {
+      const {queryByText, container} = await setupForEdit();
+
+      const uploadInput = container.querySelector('input[type="file"]');
+      const file = new File(['dummy content'], 'example.png', {type: 'image/png'});
+      fireEvent.change(uploadInput, {target: {files: [file]}});
+
+      await waitForDomChange();
+
+      const cancelButton = queryByText('Cancel');
+      fireEvent.click(cancelButton);
+
+      const image = container.querySelector('img');
+      expect(image.src).toContain('/images/profile/profile1.png');
+    });
+
+    it('does not throw error after file not selected', async () => {
+      const {container} = await setupForEdit();
+      const uploadInput = container.querySelector('input[type="file"]');
+      expect(() => fireEvent.change(uploadInput, {target: {files: []}})).not.toThrow();
+    });
+
+    it('calls updateUser api with request body having new image without data:image/png;base64', async () => {
+      const {container, queryByText} = await setupForEdit();
+      apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser);
+
+      const uploadInput = container.querySelector('input[type="file"]');
+      const file = new File(['dummy content'], 'example.png', {type: 'image/png'});
+      fireEvent.change(uploadInput, {target: {files: [file]}});
+
+      await waitForDomChange();
+
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+
+      const requestBody = apiCalls.updateUser.mock.calls[0][1];
+
+      expect(requestBody.image).not.toContain('data:image/png;base64');
+    });
+
+    it('returns the last updated image when image is change for another time but cancelled', async () => {
+      const {container, queryByText} = await setupForEdit();
+      apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser);
+
+      let uploadInput = container.querySelector('input[type="file"]');
+      const file = new File(['dummy content'], 'example.png', {type: 'image/png'});
+      fireEvent.change(uploadInput, {target: {files: [file]}});
+
+      await waitForDomChange();
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+
+      const editButtonAfterClickingSave = await waitForElement(() => queryByText('Edit'));
+      fireEvent.click(editButtonAfterClickingSave);
+
+      uploadInput = container.querySelector('input[type="file"]');
+      const newFile = new File(['another dummy content'], 'example2.png', {type: 'image/png'});
+      fireEvent.change(uploadInput, {target: {files: [newFile]}});
+
+      const cancelButton = queryByText('Cancel');
+      fireEvent.click(cancelButton);
+
+      const img = container.querySelector('img');
+      expect(img.src).toContain('/images/profile/profile1-update.png');
     });
 
   });

@@ -93,5 +93,11 @@ describe('ProfileCard', () => {
       const cancelButton = queryByText('Cancel');
       expect(cancelButton).toBeInTheDocument();
     });
+
+    it('displays file input in edit mode',  () => {
+      const {container} = render(<ProfileCard user={user} inEditMode={true} />);
+      const inputFile = container.querySelector('input[type=file]');
+      expect(inputFile).toBeInTheDocument();
+    });
   });
 });

@@ -10,7 +10,8 @@ class UserPage extends Component {
     userNotFound: false,
     isLoadingUser: false,
     inEditMode: false,
-    pendingUpdateCall: false
+    pendingUpdateCall: false,
+    image: undefined
   }
 
   componentDidMount() {
@@ -21,54 +22,6 @@ class UserPage extends Component {
     if (prevProps.match.params.username !== this.props.match.params.username) {
       this.loadUser();
     }
-  }
-
-  onClickEdit = () => {
-    this.setState({inEditMode: true})
-  }
-
-  onClickCancel = () => {
-    const user = {...this.state.user};
-    let originalDisplayName = this.state.originalDisplayName;
-    if(originalDisplayName !== undefined) {
-      user.displayName = originalDisplayName;
-    }
-    this.setState({
-      inEditMode: false,
-      originalDisplayName: undefined,
-      user
-    });
-  }
-
-  onClickSave = () => {
-    const userId = this.props.loggedInUser.id;
-    const requestBody = {
-      displayName: this.state.user.displayName
-    };
-    this.setState({pendingUpdateCall: true});
-    apiCalls.updateUser(userId, requestBody)
-      .then(_ => {
-        this.setState({
-          inEditMode: false,
-          originalDisplayName: undefined,
-          pendingUpdateCall: false
-        });
-      })
-      .catch(error => {
-        this.setState({
-          pendingUpdateCall: false
-        })
-      })
-  }
-
-  onChangeDisplayName = (event) => {
-    const user = {...this.state.user};
-    let originalDisplayName = this.state.originalDisplayName;
-    if(originalDisplayName === undefined) {
-      originalDisplayName = user.displayName;
-    }
-    user.displayName = event.target.value;
-    this.setState({user, originalDisplayName});
   }
 
   loadUser = () => {
@@ -84,6 +37,74 @@ class UserPage extends Component {
       .catch(error => {
         this.setState({userNotFound: true, isLoadingUser: false});
       });
+  }
+
+  onChangeDisplayName = (event) => {
+    const user = {...this.state.user};
+    let originalDisplayName = this.state.originalDisplayName;
+    if(originalDisplayName === undefined) {
+      originalDisplayName = user.displayName;
+    }
+    user.displayName = event.target.value;
+    this.setState({user, originalDisplayName});
+  }
+
+  onClickEdit = () => {
+    this.setState({inEditMode: true})
+  }
+
+  onClickCancel = () => {
+    const user = {...this.state.user};
+    let originalDisplayName = this.state.originalDisplayName;
+    if(originalDisplayName !== undefined) {
+      user.displayName = originalDisplayName;
+    }
+    this.setState({
+      inEditMode: false,
+      originalDisplayName: undefined,
+      user,
+      image: undefined
+    });
+  }
+
+  onClickSave = () => {
+    const userId = this.props.loggedInUser.id;
+    const requestBody = {
+      displayName: this.state.user.displayName,
+      image: this.state.image && this.state.image.split(',')[1]
+    };
+    this.setState({pendingUpdateCall: true});
+    apiCalls.updateUser(userId, requestBody)
+      .then(response => {
+        const user = {...this.state.user};
+        user.image = response.data.image;
+        this.setState({
+          inEditMode: false,
+          originalDisplayName: undefined,
+          pendingUpdateCall: false,
+          user,
+          image: undefined
+        });
+      })
+      .catch(error => {
+        this.setState({
+          pendingUpdateCall: false
+        })
+      })
+  }
+
+  onFileSelect = (event) => {
+    if(!event.target.files.length) {
+      return;
+    }
+    const file = event.target.files[0];
+    let reader = new FileReader();
+    reader.onloadend = () => {
+      this.setState({
+        image: reader.result
+      })
+    }
+    reader.readAsDataURL(file);
   }
 
   render() {
@@ -117,6 +138,8 @@ class UserPage extends Component {
           onClickSave={this.onClickSave}
           onChangeDisplayName={this.onChangeDisplayName}
           pendingUpdateCall={this.state.pendingUpdateCall}
+          loadedImage={this.state.image}
+          onFileSelect={this.onFileSelect}
         />
       ));
     }
