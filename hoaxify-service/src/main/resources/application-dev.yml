@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:hoaxify-dev
+  h2:
+    console:
+      enabled: false
+hoaxify:
+  upload-path: uploads-dev
