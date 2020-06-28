@@ -72,16 +72,28 @@ describe('Layout', () => {
     expect(input.className).toBe('form-control is-invalid');
   });
 
-  it('displays the error text when it is provided', function () {
+  it('displays the error text when it is provided', () => {
     const {queryByText} = render(<Input hasError={true} error="Cannot be null"/>);
     const errorMessage = queryByText('Cannot be null');
     expect(errorMessage).toBeInTheDocument();
   });
 
-  it('does not display the error text when hasError not provided', function () {
+  it('does not display the error text when hasError not provided', () => {
     const {queryByText} = render(<Input error="Cannot be null"/>);
     const errorMessage = queryByText('Cannot be null');
     expect(errorMessage).not.toBeInTheDocument();
+  });
+
+  it('has form-control-file class when type is file', () => {
+    const {container} = render(<Input type="file"/>);
+    const input = container.querySelector('input');
+    expect(input.classList).toContain("form-control-file");
+  });
+
+  it('has accept attribute when it is provided as a props', () => {
+    const {container} = render(<Input accept='image/*'/>);
+    const input = container.querySelector('input');
+    expect(input.accept).toBe('image/*');
   });
 
 })

@@ -10,6 +10,7 @@ const ProfileImageWithDefault = (props) => {
   return (
     <img {...props}
          src={props.src || imageSource}
+         alt={props.alt}
          onError={event => event.target.src = defaultPicture}
     />
   );

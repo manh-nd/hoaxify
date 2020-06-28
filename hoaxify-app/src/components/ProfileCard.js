@@ -22,13 +22,23 @@ const ProfileCard = (props) => {
           <h4>{`${displayName}@${username}`}</h4>
         )}
         {props.inEditMode && (
-          <div className="mb-2">
+          <div className="mb-2 text-left">
             <Input
               label={`Change Display Name For ${username}`}
               value={displayName}
               onChange={props.onChangeDisplayName}
+              hasError={props.errors.displayName && true}
+              error={props.errors.displayName}
             />
-            <input type="file" className="mt-2" onChange={props.onFileSelect}/>
+            <div className="mt-2">
+              <Input
+                type="file"
+                onChange={props.onFileSelect}
+                hasError={props.errors.image && true}
+                error={props.errors.image}
+                accept="image/*"
+              />
+            </div>
           </div>
         )}
         {props.isEditable && !props.inEditMode && (
@@ -60,4 +70,9 @@ const ProfileCard = (props) => {
     </div>
   )
 };
+
+ProfileCard.defaultProps = {
+  errors: {}
+}
+
 export default ProfileCard;

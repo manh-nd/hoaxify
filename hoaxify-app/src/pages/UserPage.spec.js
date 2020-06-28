@@ -6,8 +6,9 @@ import {waitForDomChange, waitForElement} from "@testing-library/dom";
 import {Provider} from "react-redux";
 import configureStore from "../redux/configureStore";
 import axios from "axios";
+import Input from "../components/Input";
 
-const mockGetUserSuccess = {
+const mockSuccessGetUser = {
   data: {
     id: 1,
     username: 'user1',
@@ -16,7 +17,7 @@ const mockGetUserSuccess = {
   }
 }
 
-const mockGetUserFail = {
+const mockFailGetUser = {
   response: {
     data: {
       message: 'User not found'
@@ -36,6 +37,10 @@ const mockSuccessUpdateUser = {
 const mockFailUpdateUser = {
   response: {
     data: {
+      validationErrors: {
+        displayName: 'It must have minimum 4 and maximum 45 characters',
+        image: 'Only PNG and JPG files are allowed'
+      }
     }
   }
 }
@@ -58,8 +63,10 @@ function setUserOneLoggedInStorage() {
   );
 }
 
+let store;
+
 const setup = (props) => {
-  const store = configureStore(false);
+  store = configureStore(false);
   return render(
     <Provider store={store}>
       <UserPage {...props}/>
@@ -82,14 +89,14 @@ describe('UserPage', () => {
     });
 
     it('displays the displayName@username when user data is loaded', async () => {
-      apiCalls.getUser = jest.fn().mockResolvedValue(mockGetUserSuccess);
+      apiCalls.getUser = jest.fn().mockResolvedValue(mockSuccessGetUser);
       const {queryByText} = setup({match});
       const text = await waitForElement(() => queryByText('display1@user1'));
       expect(text).toBeInTheDocument();
     });
 
     it('displays not found alert when user not found', async () => {
-      apiCalls.getUser = jest.fn().mockRejectedValue(mockGetUserFail);
+      apiCalls.getUser = jest.fn().mockRejectedValue(mockFailGetUser);
       const {queryByText} = setup({match});
       const alert = await waitForElement(() => queryByText('User not found'));
       expect(alert).toBeInTheDocument();
@@ -97,7 +104,7 @@ describe('UserPage', () => {
 
     it('displays spinner while loading user data', () => {
       apiCalls.getUser = jest.fn().mockImplementation(() => new Promise(resolve =>
-        setTimeout(() => resolve(mockGetUserSuccess), 200)
+        setTimeout(() => resolve(mockSuccessGetUser), 200)
       ))
       const {queryByText} = setup({match});
       const spinner = queryByText('Loading...');
@@ -106,7 +113,7 @@ describe('UserPage', () => {
 
     it('displays edit button when loggedInUser matches to user in url', async () => {
       setUserOneLoggedInStorage();
-      apiCalls.getUser = jest.fn().mockResolvedValue(mockGetUserSuccess);
+      apiCalls.getUser = jest.fn().mockResolvedValue(mockSuccessGetUser);
       const {queryByText} = setup({match});
       await waitForElement(() => queryByText('display1@user1'));
       const editButton = queryByText('Edit');
@@ -116,13 +123,13 @@ describe('UserPage', () => {
 
   describe('lifecycle', () => {
     it('calls getUser when it is rendered', () => {
-      apiCalls.getUser = jest.fn().mockResolvedValue(mockGetUserSuccess);
+      apiCalls.getUser = jest.fn().mockResolvedValue(mockSuccessGetUser);
       setup({match});
       expect(apiCalls.getUser).toHaveBeenCalledTimes(1);
     });
 
     it('calls getUser for user when it is rendered with user1 in match', () => {
-      apiCalls.getUser = jest.fn().mockResolvedValue(mockGetUserSuccess);
+      apiCalls.getUser = jest.fn().mockResolvedValue(mockSuccessGetUser);
       setup({match});
       expect(apiCalls.getUser).toHaveBeenCalledWith('user1');
     });
@@ -132,7 +139,7 @@ describe('UserPage', () => {
 
     const setupForEdit = async () => {
       setUserOneLoggedInStorage();
-      apiCalls.getUser = jest.fn().mockResolvedValue(mockGetUserSuccess);
+      apiCalls.getUser = jest.fn().mockResolvedValue(mockSuccessGetUser);
       const rendered = setup({match});
       const editButton = await waitForElement(() => rendered.queryByText('Edit'));
       fireEvent.click(editButton);
@@ -384,6 +391,115 @@ describe('UserPage', () => {
 
       const img = container.querySelector('img');
       expect(img.src).toContain('/images/profile/profile1-update.png');
+    });
+
+    it('displays validation error for displayName when update api fails', async () => {
+      const {queryByText} = await setupForEdit();
+      apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser);
+
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+      await waitForDomChange();
+
+      const errorMessage = queryByText('It must have minimum 4 and maximum 45 characters');
+      expect(errorMessage).toBeInTheDocument();
+    });
+
+    it('shows validation error for file when update api fails', async () => {
+      const {queryByText} = await setupForEdit();
+      apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser);
+
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+      await waitForDomChange();
+
+      const errorMessage = queryByText('Only PNG and JPG files are allowed');
+      expect(errorMessage).toBeInTheDocument();
+    });
+
+    it('removes validation error for display name when user changes the display name', async () => {
+      const {container, queryByText} = await setupForEdit();
+      apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser);
+
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+      await waitForDomChange();
+
+      const input = container.querySelector('input[type="text"');
+      fireEvent.change(input, {target: {value: 'new-display-name'}});
+
+      const errorMessage = queryByText('It must have minimum 4 and maximum 45 characters');
+      expect(errorMessage).not.toBeInTheDocument();
+    });
+
+    it('removes validation error for file when user changes the file', async () => {
+      const {container, queryByText} = await setupForEdit();
+      apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser);
+
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+      await waitForDomChange();
+
+      const fileInput = container.querySelector('input[type="file"]');
+      const newFile = new File(['another dummy content'], 'example2.png', {type: 'image/png'});
+      fireEvent.change(fileInput, {target: {files: [newFile]}});
+
+      await waitForDomChange();
+
+      const errorMessage = queryByText('Only PNG and JPG files are allowed');
+      expect(errorMessage).not.toBeInTheDocument();
+    });
+
+    it('removes validation error when user cancel', async () => {
+      const {queryByText} = await setupForEdit();
+      apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser);
+
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+      await waitForDomChange();
+
+      const cancelButton = queryByText('Cancel');
+      fireEvent.click(cancelButton);
+
+      const editButton = queryByText('Edit');
+      fireEvent.click(editButton);
+
+      const errorMessage = queryByText('Only PNG and JPG files are allowed');
+      expect(errorMessage).not.toBeInTheDocument();
+    });
+
+    it('update redux state after updateUser api call success', async () => {
+      const {container, queryByText} = await setupForEdit();
+      const displayInput = container.querySelector('input');
+      fireEvent.change(displayInput, {target: {value: 'display-1-update'}});
+      apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser);
+
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+
+      await waitForDomChange();
+
+      const storedUser = store.getState();
+
+      expect(storedUser.displayName).toBe(mockSuccessUpdateUser.data.displayName);
+      expect(storedUser.image).toBe(mockSuccessUpdateUser.data.image);
+    });
+
+    it('update localStorage after updateUser api call success', async () => {
+      const {container, queryByText} = await setupForEdit();
+      const displayInput = container.querySelector('input');
+      fireEvent.change(displayInput, {target: {value: 'display-1-update'}});
+      apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser);
+
+      const saveButton = queryByText('Save');
+      fireEvent.click(saveButton);
+
+      await waitForDomChange();
+
+      const storedUser = JSON.parse(localStorage.getItem('hoax-auth'));
+
+      expect(storedUser.displayName).toBe(mockSuccessUpdateUser.data.displayName);
+      expect(storedUser.image).toBe(mockSuccessUpdateUser.data.image);
     });
 
   });

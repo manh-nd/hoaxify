@@ -11,7 +11,8 @@ class UserPage extends Component {
     isLoadingUser: false,
     inEditMode: false,
     pendingUpdateCall: false,
-    image: undefined
+    image: undefined,
+    errors: {}
   }
 
   componentDidMount() {
@@ -46,7 +47,13 @@ class UserPage extends Component {
       originalDisplayName = user.displayName;
     }
     user.displayName = event.target.value;
-    this.setState({user, originalDisplayName});
+    const errors = {...this.state.errors};
+    delete errors.displayName;
+    this.setState({
+      user,
+      originalDisplayName,
+      errors
+    });
   }
 
   onClickEdit = () => {
@@ -63,7 +70,8 @@ class UserPage extends Component {
       inEditMode: false,
       originalDisplayName: undefined,
       user,
-      image: undefined
+      image: undefined,
+      errors: {}
     });
   }
 
@@ -84,11 +92,22 @@ class UserPage extends Component {
           pendingUpdateCall: false,
           user,
           image: undefined
+        }, () => {
+          const action = {
+            type: 'UPDATE_SUCCESS',
+            payload: user
+          }
+          this.props.dispatch(action);
         });
       })
       .catch(error => {
+        let errors = {};
+        if(error.response.data.validationErrors) {
+          errors = error.response.data.validationErrors;
+        }
         this.setState({
-          pendingUpdateCall: false
+          pendingUpdateCall: false,
+          errors
         })
       })
   }
@@ -100,8 +119,11 @@ class UserPage extends Component {
     const file = event.target.files[0];
     let reader = new FileReader();
     reader.onloadend = () => {
+      const errors = {...this.state.errors};
+      delete errors.image;
       this.setState({
-        image: reader.result
+        image: reader.result,
+        errors
       })
     }
     reader.readAsDataURL(file);
@@ -140,6 +162,7 @@ class UserPage extends Component {
           pendingUpdateCall={this.state.pendingUpdateCall}
           loadedImage={this.state.image}
           onFileSelect={this.onFileSelect}
+          errors={this.state.errors}
         />
       ));
     }
