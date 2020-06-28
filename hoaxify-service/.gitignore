@@ -32,3 +32,6 @@ build/
 
 ### Upload folder ###
 /uploads**/
+
+### MAC OS ###
+**/.DS_Store

@@ -52,7 +52,7 @@ public class UserController {
 
     @PutMapping("/users/{id:[0-9]+}")
     @PreAuthorize("#id == principal.id")
-    public ResponseEntity<UserVM> getUsers(@PathVariable Long id, @RequestBody(required = false) UserUpdateVM userUpdateVM) {
+    public ResponseEntity<UserVM> getUsers(@PathVariable Long id, @Valid @RequestBody(required = false) UserUpdateVM userUpdateVM) {
         User updateUser = userService.update(id, userUpdateVM);
         return ResponseEntity.ok(new UserVM(updateUser));
     }

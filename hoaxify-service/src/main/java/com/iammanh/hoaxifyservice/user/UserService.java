@@ -4,6 +4,7 @@ import com.iammanh.hoaxifyservice.error.NotFoundException;
 import com.iammanh.hoaxifyservice.file.FileService;
 import com.iammanh.hoaxifyservice.user.vm.UserUpdateVM;
 import lombok.RequiredArgsConstructor;
+import org.apache.tika.mime.MimeTypeException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,8 +45,9 @@ public class UserService {
         if (userUpdateVMImage != null) {
             try {
                 String saveImageName = fileService.saveProfileImage(userUpdateVMImage);
+                fileService.deleteProfileImage(user.getImage());
                 user.setImage(saveImageName);
-            } catch (IOException e) {
+            } catch (IOException | MimeTypeException e) {
                 e.printStackTrace();
             }
         }
