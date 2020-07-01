@@ -3,6 +3,6 @@ spring:
     url: jdbc:h2:mem:hoaxify-dev
   h2:
     console:
-      enabled: false
+      enabled: true
 hoaxify:
   upload-path: uploads-dev

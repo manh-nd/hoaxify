@@ -2,6 +2,7 @@ package com.iammanh.hoaxifyservice.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.iammanh.hoaxifyservice.hoax.Hoax;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @Entity
@@ -35,6 +37,9 @@ public class User implements UserDetails {
     @Size(min = 8, max = 255)
     @Pattern(regexp = "^(?=.*[A-Z]+)(?=.*[a-z]+)(?=.*[0-9]+).*$", message = "{hoaxify.validation.constraints.password.Pattern.message}")
     private String password;
+
+    @OneToMany(mappedBy = "user")
+    private List<Hoax> hoaxes;
 
     @Override
     @Transient

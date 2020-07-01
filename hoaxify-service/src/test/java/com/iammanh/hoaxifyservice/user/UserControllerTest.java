@@ -58,10 +58,6 @@ public class UserControllerTest {
     @Autowired
     private AppConfiguration appConfiguration;
 
-    @Before
-    public void setUp() throws Exception {
-    }
-
     @After
     public void tearDown() throws Exception {
         userRepository.deleteAll();

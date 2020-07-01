@@ -56,24 +56,4 @@ public class UserController {
         User updateUser = userService.update(id, userUpdateVM);
         return ResponseEntity.ok(new UserVM(updateUser));
     }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(
-            MethodArgumentNotValidException e, HttpServletRequest request) {
-        BindingResult bindingResult = e.getBindingResult();
-        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-
-        Map<String, String> validationErrors = new HashMap<>();
-        for (FieldError fieldError : fieldErrors)
-            validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
-
-        return ResponseEntity.badRequest()
-                .body(ApiError.builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .url(request.getRequestURI())
-                        .message("Validation error")
-                        .validationErrors(validationErrors)
-                        .build()
-                );
-    }
 }

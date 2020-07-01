@@ -26,12 +26,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
+        http.headers().disable();
         http.httpBasic().authenticationEntryPoint(new BasicAuthenticationEntryPoint());
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http
             .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/v1/login").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/v1/users/{id:[0-9]+}").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/hoaxes").authenticated()
             .and()
             .authorizeRequests().anyRequest().permitAll();
     }
