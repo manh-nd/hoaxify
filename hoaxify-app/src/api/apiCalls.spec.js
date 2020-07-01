@@ -72,4 +72,14 @@ describe('apiCalls', () => {
     });
   });
 
-})
+  describe('postHoax', () => {
+    it('calls /api/v1/hoaxes', () => {
+      const mockPostHoax = jest.fn();
+      axios.post = mockPostHoax;
+      apiCalls.postHoax();
+      const path = mockPostHoax.mock.calls[0][0];
+      expect(path).toBe('/api/v1/hoaxes');
+    });
+  });
+
+});

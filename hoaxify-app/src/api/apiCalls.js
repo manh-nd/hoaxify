@@ -45,3 +45,11 @@ export function updateUser(userId, body){
     }
   });
 }
+
+export function postHoax(hoax) {
+  return axios.post(endpoint(`/api/v1/hoaxes`), hoax, {
+    headers: {
+      'Accept-Language': 'en'
+    }
+  });
+}

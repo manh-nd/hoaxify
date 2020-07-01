@@ -54,7 +54,7 @@ class UserList extends Component {
             Users
           </h3>
           <div className="card-body">
-            There is not any user available.
+            There is no user available.
           </div>
         </div>
       );
