@@ -14,6 +14,14 @@ apiCalls.listUsers = jest.fn().mockResolvedValue({
   }
 });
 
+apiCalls.loadHoaxes = jest.fn().mockResolvedValue({
+  data: {
+    content: [],
+    number: 0,
+    size: 5
+  }
+});
+
 const defaultState = {
   id: 1,
   displayName: 'display1',

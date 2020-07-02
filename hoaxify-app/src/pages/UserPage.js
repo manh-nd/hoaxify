@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import * as apiCalls from '../api/apiCalls';
 import ProfileCard from "../components/ProfileCard";
 import {connect} from "react-redux";
+import HoaxFeed from "../components/HoaxFeed";
 
 class UserPage extends Component {
 
@@ -43,7 +44,7 @@ class UserPage extends Component {
   onChangeDisplayName = (event) => {
     const user = {...this.state.user};
     let originalDisplayName = this.state.originalDisplayName;
-    if(originalDisplayName === undefined) {
+    if (originalDisplayName === undefined) {
       originalDisplayName = user.displayName;
     }
     user.displayName = event.target.value;
@@ -63,7 +64,7 @@ class UserPage extends Component {
   onClickCancel = () => {
     const user = {...this.state.user};
     let originalDisplayName = this.state.originalDisplayName;
-    if(originalDisplayName !== undefined) {
+    if (originalDisplayName !== undefined) {
       user.displayName = originalDisplayName;
     }
     this.setState({
@@ -102,7 +103,7 @@ class UserPage extends Component {
       })
       .catch(error => {
         let errors = {};
-        if(error.response.data.validationErrors) {
+        if (error.response.data.validationErrors) {
           errors = error.response.data.validationErrors;
         }
         this.setState({
@@ -113,7 +114,7 @@ class UserPage extends Component {
   }
 
   onFileSelect = (event) => {
-    if(!event.target.files.length) {
+    if (!event.target.files.length) {
       return;
     }
     const file = event.target.files[0];
@@ -151,19 +152,26 @@ class UserPage extends Component {
     } else {
       const isEditable = this.props.loggedInUser.username === this.props.match.params.username;
       pageContent = (this.state.user && (
-        <ProfileCard
-          user={this.state.user}
-          isEditable={isEditable}
-          inEditMode={this.state.inEditMode}
-          onClickEdit={this.onClickEdit}
-          onClickCancel={this.onClickCancel}
-          onClickSave={this.onClickSave}
-          onChangeDisplayName={this.onChangeDisplayName}
-          pendingUpdateCall={this.state.pendingUpdateCall}
-          loadedImage={this.state.image}
-          onFileSelect={this.onFileSelect}
-          errors={this.state.errors}
-        />
+        <div className="row">
+          <div className="col-md-6">
+            <ProfileCard
+              user={this.state.user}
+              isEditable={isEditable}
+              inEditMode={this.state.inEditMode}
+              onClickEdit={this.onClickEdit}
+              onClickCancel={this.onClickCancel}
+              onClickSave={this.onClickSave}
+              onChangeDisplayName={this.onChangeDisplayName}
+              pendingUpdateCall={this.state.pendingUpdateCall}
+              loadedImage={this.state.image}
+              onFileSelect={this.onFileSelect}
+              errors={this.state.errors}
+            />
+          </div>
+          <div className="col-md-6">
+            <HoaxFeed user={this.props.match.params.username}/>
+          </div>
+        </div>
       ));
     }
     return (

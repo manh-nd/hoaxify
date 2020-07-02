@@ -4,7 +4,7 @@ import App from "./App";
 import {MemoryRouter} from "react-router-dom"
 import {Provider} from "react-redux";
 import axios from 'axios';
-import {waitForDomChange, waitForElement} from "@testing-library/dom";
+import {waitForElement} from "@testing-library/dom";
 import configureStore from "../redux/configureStore";
 import * as apiCalls from '../api/apiCalls';
 
@@ -22,6 +22,14 @@ apiCalls.getUser = jest.fn().mockResolvedValue({
     username: 'user1',
     displayName: 'display1',
     image: 'profile.png'
+  }
+});
+
+apiCalls.loadHoaxes = jest.fn().mockResolvedValue({
+  data: {
+    content: [],
+    number: 0,
+    size: 5
   }
 });
 

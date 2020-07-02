@@ -82,4 +82,22 @@ describe('apiCalls', () => {
     });
   });
 
+  describe('loadHoaxes', () => {
+    it('calls /api/v1/hoaxes?page=0&size=5&sort=id,desc when no param provided', () => {
+      const mockGetHoaxes = jest.fn();
+      axios.get = mockGetHoaxes;
+      apiCalls.loadHoaxes();
+      const path = mockGetHoaxes.mock.calls[0][0];
+      expect(path).toBe('/api/v1/hoaxes?page=0&size=5&sort=id,desc');
+    });
+
+    it('calls /api/v1/users/user1/hoaxes?page=0&size=5&sort=id,desc when user param provided', () => {
+      const mockGetHoaxes = jest.fn();
+      axios.get = mockGetHoaxes;
+      apiCalls.loadHoaxes('user1');
+      const path = mockGetHoaxes.mock.calls[0][0];
+      expect(path).toBe('/api/v1/users/user1/hoaxes?page=0&size=5&sort=id,desc');
+    });
+  });
+
 });

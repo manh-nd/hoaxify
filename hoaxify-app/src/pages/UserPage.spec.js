@@ -6,7 +6,14 @@ import {waitForDomChange, waitForElement} from "@testing-library/dom";
 import {Provider} from "react-redux";
 import configureStore from "../redux/configureStore";
 import axios from "axios";
-import Input from "../components/Input";
+
+apiCalls.loadHoaxes = jest.fn().mockResolvedValue({
+  data: {
+    content: [],
+    number: 0,
+    size: 5
+  }
+});
 
 const mockSuccessGetUser = {
   data: {

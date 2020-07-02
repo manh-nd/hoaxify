@@ -53,3 +53,15 @@ export function postHoax(hoax) {
     }
   });
 }
+
+export function loadHoaxes(username) {
+  const basePath = username
+    ? `/api/v1/users/${username}/hoaxes?page=0&size=5&sort=id,desc`
+    : '/api/v1/hoaxes?page=0&size=5&sort=id,desc';
+
+  return axios.get(endpoint(basePath), {
+    headers: {
+      'Accept-Language': 'en'
+    }
+  });
+}
