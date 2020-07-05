@@ -100,4 +100,58 @@ describe('apiCalls', () => {
     });
   });
 
+  describe('loadOldHoaxes', () => {
+    it('calls /api/v1/hoaxes/5?direction=before&page=0&size=5&sort=id,desc when hoaxId param provided', () => {
+      const mockGetOldHoaxes = jest.fn();
+      axios.get = mockGetOldHoaxes;
+      apiCalls.loadOldHoaxes(5);
+      const path = mockGetOldHoaxes.mock.calls[0][0];
+      expect(path).toBe('/api/v1/hoaxes/5?direction=before&page=0&size=5&sort=id,desc');
+    });
+
+    it('calls /api/v1/users/user1/hoaxes/5?direction=before&page=0&size=5&sort=id,desc when hoaxId and username params provided', () => {
+      const mockGetOldHoaxes = jest.fn();
+      axios.get = mockGetOldHoaxes;
+      apiCalls.loadOldHoaxes(5, 'user1');
+      const path = mockGetOldHoaxes.mock.calls[0][0];
+      expect(path).toBe('/api/v1/users/user1/hoaxes/5?direction=before&page=0&size=5&sort=id,desc');
+    });
+  });
+
+  describe('loadNewHoaxes', () => {
+    it('calls /api/v1/hoaxes/5?direction=after&sort=id,desc when hoaxId param provided', () => {
+      const mockGetNewHoaxes = jest.fn();
+      axios.get = mockGetNewHoaxes;
+      apiCalls.loadNewHoaxes(5);
+      const path = mockGetNewHoaxes.mock.calls[0][0];
+      expect(path).toBe('/api/v1/hoaxes/5?direction=after&sort=id,desc');
+    });
+
+    it('calls /api/v1/users/user1/hoaxes/5?direction=after&sort=id,desc when hoaxId and username params provided', () => {
+      const mockGetNewHoaxes = jest.fn();
+      axios.get = mockGetNewHoaxes;
+      apiCalls.loadNewHoaxes(5, 'user1');
+      const path = mockGetNewHoaxes.mock.calls[0][0];
+      expect(path).toBe('/api/v1/users/user1/hoaxes/5?direction=after&sort=id,desc');
+    });
+  });
+
+  describe('loadNewHoaxCount', () => {
+    it('calls /api/v1/hoaxes/5?direction=after&count=true when hoaxId param provided', () => {
+      const mockGetNewHoaxCount = jest.fn();
+      axios.get = mockGetNewHoaxCount;
+      apiCalls.loadNewHoaxCount(5);
+      const path = mockGetNewHoaxCount.mock.calls[0][0];
+      expect(path).toBe('/api/v1/hoaxes/5?direction=after&count=true');
+    });
+
+    it('calls /api/v1/users/user1/hoaxes/5?direction=after&count=true when hoaxId and username params provided', () => {
+      const mockGetNewHoaxCount = jest.fn();
+      axios.get = mockGetNewHoaxCount;
+      apiCalls.loadNewHoaxCount(5, 'user1');
+      const path = mockGetNewHoaxCount.mock.calls[0][0];
+      expect(path).toBe('/api/v1/users/user1/hoaxes/5?direction=after&count=true');
+    });
+  });
+
 });

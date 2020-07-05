@@ -61,7 +61,7 @@ class UserList extends Component {
     } else {
       return (
         <div className="card">
-          <h3 className="card-title bg-primary m-0 py-1 text-center text-white">
+          <h3 className="card-title bg-secondary m-0 py-1 text-center text-white">
             Users
           </h3>
           <div className="card-body overlay-container">

@@ -38,7 +38,7 @@ export function getUser(username) {
   return axios.get(endpoint(path));
 }
 
-export function updateUser(userId, body){
+export function updateUser(userId, body) {
   return axios.put(endpoint(`/api/v1/users/${userId}`), body, {
     headers: {
       'Accept-Language': 'en'
@@ -58,6 +58,42 @@ export function loadHoaxes(username) {
   const basePath = username
     ? `/api/v1/users/${username}/hoaxes?page=0&size=5&sort=id,desc`
     : '/api/v1/hoaxes?page=0&size=5&sort=id,desc';
+
+  return axios.get(endpoint(basePath), {
+    headers: {
+      'Accept-Language': 'en'
+    }
+  });
+}
+
+export function loadOldHoaxes(hoaxId, username) {
+  const basePath = username
+    ? `/api/v1/users/${username}/hoaxes/${hoaxId}?direction=before&page=0&size=5&sort=id,desc`
+    : `/api/v1/hoaxes/${hoaxId}?direction=before&page=0&size=5&sort=id,desc`;
+
+  return axios.get(endpoint(basePath), {
+    headers: {
+      'Accept-Language': 'en'
+    }
+  });
+}
+
+export function loadNewHoaxes(hoaxId, username) {
+  const basePath = username
+    ? `/api/v1/users/${username}/hoaxes/${hoaxId}?direction=after&sort=id,desc`
+    : `/api/v1/hoaxes/${hoaxId}?direction=after&sort=id,desc`;
+
+  return axios.get(endpoint(basePath), {
+    headers: {
+      'Accept-Language': 'en'
+    }
+  });
+}
+
+export function loadNewHoaxCount(hoaxId, username) {
+  const basePath = username
+    ? `/api/v1/users/${username}/hoaxes/${hoaxId}?direction=after&count=true`
+    : `/api/v1/hoaxes/${hoaxId}?direction=after&count=true`;
 
   return axios.get(endpoint(basePath), {
     headers: {

@@ -84,8 +84,7 @@ public class LoginControllerTest {
     public void postLogin_withValidCredentials_receiveLoggedInUsersId() {
         User inDB = userService.save(createValidUser());
         authenticate();
-        ResponseEntity<Map<String, Object>> response = login(new ParameterizedTypeReference<Map<String, Object>>() {
-        });
+        ResponseEntity<Map<String, Object>> response = login(new ParameterizedTypeReference<Map<String, Object>>() {});
         Integer id = (Integer) response.getBody().get("id");
         assertThat(id).isEqualTo(inDB.getId());
     }
@@ -112,14 +111,13 @@ public class LoginControllerTest {
     public void postLogin_withValidCredentials_receiveLoggedInUsersUsername() {
         User inDB = userService.save(createValidUser());
         authenticate();
-        ResponseEntity<Map<String, Object>> response = login(new ParameterizedTypeReference<Map<String, Object>>() {
-        });
+        ResponseEntity<Map<String, Object>> response = login(new ParameterizedTypeReference<Map<String, Object>>() {});
         assertThat(response.getBody().get("username")).isEqualTo(inDB.getUsername());
     }
 
     @Test
     public void postLogin_withValidCredentials_notReceiveLoggedInUsersPassword() {
-        User inDB = userService.save(createValidUser());
+        userService.save(createValidUser());
         authenticate();
         ResponseEntity<String> response = login(String.class);
         assertThat(response.getBody().contains("password")).isFalse();
